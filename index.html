@@ -1,507 +1,499 @@
+```html
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>تصميم وفاحص سقالات الكابلوب (Cuplock Scaffolding Designer)</title>
-
-    <!-- ===== PWA Meta Tags ===== -->
-    <meta name="theme-color" content="#0f172a">
-    <meta name="description" content="محاكي هندسي ثلاثي الأبعاد لتصميم وفحص سقالات الكابلوب وحساب الكميات والأوزان">
-    <meta name="application-name" content="Cuplock Designer">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Cuplock">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="format-detection" content="telephone=no">
-    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Cuplock%20Scaffolding%20Designer%22%2C%22short_name%22%3A%22Cuplock%22%2C%22description%22%3A%22%D9%85%D8%AD%D8%A7%D9%83%D9%8A%20%D9%87%D9%86%D8%AF%D8%B3%D9%8A%20%D9%84%D8%AA%D8%B5%D9%85%D9%8A%D9%85%20%D8%B3%D9%82%D8%A7%D9%84%D8%A7%D8%AA%20%D8%A7%D9%84%D9%83%D8%A7%D8%A8%D9%84%D9%88%D8%A8%22%2C%22start_url%22%3A%22.%2F%22%2C%22scope%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22any%22%2C%22background_color%22%3A%22%23090d16%22%2C%22theme_color%22%3A%22%230f172a%22%2C%22lang%22%3A%22ar%22%2C%22dir%22%3A%22rtl%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Bcharset%3Dutf-8%2C%253Csvg%2520xmlns%253D%2522http%253A%2F%2Fwww.w3.org%2F2000%2Fsvg%2522%2520viewBox%253D%25220%25200%2520512%2520512%2522%253E%253Crect%2520width%253D%2522512%2522%2520height%253D%2522512%2522%2520rx%253D%2522100%2522%2520fill%253D%2522%25230f172a%2522%2F%253E%253Ctext%2520x%253D%2522256%2522%2520y%253D%2522320%2522%2520font-size%253D%2522220%2522%2520text-anchor%253D%2522middle%2522%2520fill%253D%2522%2523f59e0b%2522%253E%25F0%259F%258F%2597%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
-    <link rel="apple-touch-icon" href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%230f172a'/%3E%3Ctext x='256' y='320' font-size='220' text-anchor='middle' fill='%23f59e0b'%3E%F0%9F%8F%97%3C/text%3E%3C/svg%3E">
-    <link rel="icon" href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%230f172a'/%3E%3Ctext x='256' y='320' font-size='220' text-anchor='middle' fill='%23f59e0b'%3E%F0%9F%8F%97%3C/text%3E%3C/svg%3E">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuplock Scaffolding Structural Designer & Visualizer</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js & OrbitControls -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Font Family -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #1e293b; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
-        input[type=range] { -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-runnable-track { height: 4px; background: #334155; border-radius: 2px; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: #f59e0b; border-radius: 50%; margin-top: -6px; cursor: pointer; }
-
-        #splash {
-            position: fixed; inset: 0; z-index: 9999;
-            background: #090d16;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            gap: 1rem;
-            transition: opacity 0.5s ease, visibility 0.5s;
-        }
-        #splash.hide { opacity: 0; visibility: hidden; }
-        #splash .spinner {
-            width: 50px; height: 50px;
-            border: 4px solid #1e293b;
-            border-top-color: #f59e0b;
-            border-radius: 50%;
-            animation: spin 0.9s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        #install-btn {
-            position: fixed; bottom: 1rem; left: 1rem; z-index: 1000;
-            display: none; align-items: center; gap: 0.5rem;
-            padding: 0.75rem 1.25rem;
-            background: #f59e0b; color: #0f172a;
-            border-radius: 9999px; font-weight: 700;
-            box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.5);
-            cursor: pointer; border: none;
-            transition: transform 0.2s, box-shadow 0.2s;
-            animation: pulseGlow 2s infinite;
-        }
-        #install-btn:hover { transform: scale(1.05); box-shadow: 0 15px 30px -5px rgba(245, 158, 11, 0.7); }
-        #install-btn.show { display: flex; }
-        @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.5); }
-            50% { box-shadow: 0 10px 35px -5px rgba(245, 158, 11, 0.9); }
-        }
-
-        #offline-badge {
-            position: fixed; top: 0.5rem; left: 50%; transform: translateX(-50%);
-            z-index: 1001; display: none;
-            padding: 0.5rem 1rem; border-radius: 9999px;
-            background: #78350f; color: #fbbf24;
-            border: 1px solid #b45309;
-            font-size: 0.75rem; font-weight: 600;
-        }
-        #offline-badge.show { display: block; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        canvas { display: block; outline: none; }
+        .glass-panel { background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 h-screen flex flex-col overflow-hidden">
+<body class="h-screen w-screen overflow-hidden flex flex-col">
 
-    <div id="splash">
-        <div class="text-5xl">🏗️</div>
-        <div class="spinner"></div>
-        <p class="text-amber-400 font-bold text-sm">جاري تحميل التطبيق...</p>
-    </div>
-
-    <div id="offline-badge">📴 أنت غير متصل — التطبيق يعمل محلياً</div>
-
-    <button id="install-btn">
-        <span>📲</span>
-        <span>تثبيت التطبيق</span>
-    </button>
-
-    <header class="bg-slate-900 border-b border-slate-800 px-6 py-3 flex justify-between items-center shadow-lg z-10">
-        <div class="flex items-center gap-3">
-            <span class="text-2xl">🏗️</span>
+    <!-- Header / Navbar -->
+    <header class="h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 z-20">
+        <div class="flex items-center space-x-3">
+            <div class="bg-amber-500 p-2 rounded-lg text-slate-950 font-bold flex items-center justify-center">
+                <i data-lucide="layers" class="w-5 h-5"></i>
+            </div>
             <div>
-                <h1 class="font-bold text-lg text-amber-400">نظام تصميم وفحص سقالات الكابلوب (Cuplock)</h1>
-                <p class="text-xs text-slate-400">محاكي هندسي ثلاثي الأبعاد وحاسبة الكميات والأحمال</p>
+                <h1 class="font-bold text-sm sm:text-base text-slate-100 flex items-center gap-2">
+                    CUP-DESIGNER <span class="bg-amber-500/20 text-amber-400 text-xs px-2 py-0.5 rounded border border-amber-500/30">PRO v2.4</span>
+                </h1>
+                <p class="text-xs text-slate-400 hidden sm:block">Cuplock Scaffolding Structural Designer & Load Engine (BS 1139 / EN 12810)</p>
             </div>
         </div>
-        <div class="flex items-center gap-2">
-            <span id="duty-badge" class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-900/60 text-emerald-400 border border-emerald-700/50">
-                تصنيف: متوسط التحمل (Medium Duty)
-            </span>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center space-x-2">
+            <button id="nodeInspectBtn" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition">
+                <i data-lucide="search" class="w-4 h-4"></i>
+                <span class="hidden md:inline">Cuplock Joint Detail</span>
+            </button>
+            <button id="guideBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition">
+                <i data-lucide="help-circle" class="w-4 h-4"></i>
+                <span class="hidden md:inline">Standards Guide</span>
+            </button>
+            <button id="exportCsvBtn" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span>Export BOM</span>
+            </button>
         </div>
     </header>
 
-    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+    <!-- Main Content Area -->
+    <div class="flex-1 flex overflow-hidden relative">
 
-        <aside class="w-full lg:w-96 bg-slate-900/90 backdrop-blur border-l border-slate-800 p-5 overflow-y-auto flex flex-col gap-6 z-10">
-
-            <div class="space-y-3">
-                <h2 class="text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
-                    <span>📐</span> أبعاد هيكل السقالة
-                </h2>
-
-                <div class="grid grid-cols-3 gap-2">
-                    <div>
-                        <label class="text-xs text-slate-400 block mb-1">أعمدة X</label>
-                        <input type="number" id="gridX" value="3" min="1" max="6" class="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-center text-sm focus:outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-400 block mb-1">أعمدة Y</label>
-                        <input type="number" id="gridY" value="2" min="1" max="6" class="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-center text-sm focus:outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-400 block mb-1">الطوابق Z</label>
-                        <input type="number" id="gridZ" value="3" min="1" max="10" class="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-center text-sm focus:outline-none focus:border-amber-500">
-                    </div>
-                </div>
-
-                <div class="space-y-2 pt-2">
-                    <div>
-                        <div class="flex justify-between text-xs text-slate-400 mb-1">
-                            <span>طول الباية (Bay Length):</span>
-                            <span id="val-length" class="text-slate-200 font-medium">2.5 م</span>
-                        </div>
-                        <input type="range" id="bayLength" min="1.0" max="3.0" step="0.5" value="2.5" class="w-full accent-amber-500 cursor-pointer">
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-xs text-slate-400 mb-1">
-                            <span>عرض الباية (Bay Width):</span>
-                            <span id="val-width" class="text-slate-200 font-medium">1.2 م</span>
-                        </div>
-                        <input type="range" id="bayWidth" min="0.8" max="2.0" step="0.2" value="1.2" class="w-full accent-amber-500 cursor-pointer">
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-xs text-slate-400 mb-1">
-                            <span>ارتفاع الطابق (Lift Height):</span>
-                            <span id="val-height" class="text-slate-200 font-medium">2.0 م</span>
-                        </div>
-                        <input type="range" id="liftHeight" min="1.5" max="2.5" step="0.25" value="2.0" class="w-full accent-amber-500 cursor-pointer">
-                    </div>
-                </div>
+        <!-- Left Sidebar: Controls Panel -->
+        <aside class="w-80 sm:w-96 glass-panel border-r border-slate-800 flex flex-col z-10 shrink-0">
+            <div class="p-3 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <i data-lucide="sliders" class="w-4 h-4 text-amber-400"></i> Structure Geometry
+                </span>
+                <button id="resetParamsBtn" class="text-xs text-slate-400 hover:text-amber-400 flex items-center gap-1">
+                    <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Reset
+                </button>
             </div>
 
-            <hr class="border-slate-800">
+            <div class="flex-1 overflow-y-auto p-4 space-y-5 text-xs">
 
-            <div class="space-y-3">
-                <h2 class="text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
-                    <span>👁️</span> طبقات العرض
-                </h2>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                    <label class="flex items-center gap-2 bg-slate-800/60 p-2 rounded border border-slate-700/50 cursor-pointer">
-                        <input type="checkbox" id="toggle-decks" checked class="accent-amber-500"> الألواح الفولاذية
-                    </label>
-                    <label class="flex items-center gap-2 bg-slate-800/60 p-2 rounded border border-slate-700/50 cursor-pointer">
-                        <input type="checkbox" id="toggle-braces" checked class="accent-amber-500"> الدعامات المائلة
-                    </label>
-                    <label class="flex items-center gap-2 bg-slate-800/60 p-2 rounded border border-slate-700/50 cursor-pointer">
-                        <input type="checkbox" id="toggle-rails" checked class="accent-amber-500"> درابزين الأمان
-                    </label>
-                    <label class="flex items-center gap-2 bg-slate-800/60 p-2 rounded border border-slate-700/50 cursor-pointer">
-                        <input type="checkbox" id="toggle-ties" checked class="accent-amber-500"> ربطات الجدران
-                    </label>
+                <!-- Grid Dimensions Section -->
+                <div class="space-y-3">
+                    <h3 class="font-semibold text-slate-200 flex items-center gap-2">
+                        <i data-lucide="grid" class="w-4 h-4 text-amber-400"></i> Bay Configuration
+                    </h3>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-slate-400 mb-1">Bay Length (X-axis)</label>
+                            <select id="bayLength" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-amber-500 focus:outline-none">
+                                <option value="2.5">2.50 m (Standard)</option>
+                                <option value="1.8">1.80 m (Medium)</option>
+                                <option value="1.2">1.20 m (Short)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-1">Bay Width (Y-axis)</label>
+                            <select id="bayWidth" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-amber-500 focus:outline-none">
+                                <option value="1.2">1.20 m (Standard)</option>
+                                <option value="0.9">0.90 m (Narrow)</option>
+                                <option value="1.8">1.80 m (Wide)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-slate-400 mb-1">Lift Height (Z-step)</label>
+                            <select id="liftHeight" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-amber-500 focus:outline-none">
+                                <option value="2.0">2.00 m (Standard)</option>
+                                <option value="1.5">1.50 m (Medium)</option>
+                                <option value="1.0">1.00 m (Low)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-1">Base Jack Extension</label>
+                            <select id="jackExt" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-amber-500 focus:outline-none">
+                                <option value="0.3">0.30 m</option>
+                                <option value="0.45">0.45 m</option>
+                                <option value="0.6">0.60 m</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Bay Count / Quantities -->
+                <div class="space-y-3 pt-3 border-t border-slate-800">
+                    <h3 class="font-semibold text-slate-200 flex items-center gap-2">
+                        <i data-lucide="box" class="w-4 h-4 text-amber-400"></i> Array Quantities
+                    </h3>
+
+                    <div>
+                        <div class="flex justify-between text-slate-400 mb-1">
+                            <span>Bays Along Length (X):</span>
+                            <span id="baysXVal" class="text-amber-400 font-bold">3</span>
+                        </div>
+                        <input id="baysX" type="range" min="1" max="10" value="3" class="w-full accent-amber-500 bg-slate-800">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-slate-400 mb-1">
+                            <span>Bays Along Width / Deep (Y):</span>
+                            <span id="baysYVal" class="text-amber-400 font-bold">2</span>
+                        </div>
+                        <input id="baysY" type="range" min="1" max="6" value="2" class="w-full accent-amber-500 bg-slate-800">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-slate-400 mb-1">
+                            <span>Lift Levels (Z Height):</span>
+                            <span id="liftsZVal" class="text-amber-400 font-bold">3</span>
+                        </div>
+                        <input id="liftsZ" type="range" min="1" max="10" value="3" class="w-full accent-amber-500 bg-slate-800">
+                    </div>
+                </div>
+
+                <!-- Structural Components Toggles -->
+                <div class="space-y-3 pt-3 border-t border-slate-800">
+                    <h3 class="font-semibold text-slate-200 flex items-center gap-2">
+                        <i data-lucide="eye" class="w-4 h-4 text-amber-400"></i> Components & Extras
+                    </h3>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center space-x-2 bg-slate-900/60 p-2 rounded cursor-pointer border border-slate-800 hover:border-slate-700">
+                            <input id="toggleDecks" type="checkbox" checked class="accent-amber-500 rounded">
+                            <span class="text-slate-300">Working Decks</span>
+                        </label>
+
+                        <label class="flex items-center space-x-2 bg-slate-900/60 p-2 rounded cursor-pointer border border-slate-800 hover:border-slate-700">
+                            <input id="toggleRails" type="checkbox" checked class="accent-amber-500 rounded">
+                            <span class="text-slate-300">Guardrails</span>
+                        </label>
+
+                        <label class="flex items-center space-x-2 bg-slate-900/60 p-2 rounded cursor-pointer border border-slate-800 hover:border-slate-700">
+                            <input id="toggleBracing" type="checkbox" checked class="accent-amber-500 rounded">
+                            <span class="text-slate-300">Diagonal Braces</span>
+                        </label>
+
+                        <label class="flex items-center space-x-2 bg-slate-900/60 p-2 rounded cursor-pointer border border-slate-800 hover:border-slate-700">
+                            <input id="toggleTies" type="checkbox" checked class="accent-amber-500 rounded">
+                            <span class="text-slate-300">Wall Ties</span>
+                        </label>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-400 mb-1">Working Deck Level</label>
+                        <select id="deckLevelSelect" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-amber-500 focus:outline-none">
+                            <option value="top">Top Level Only</option>
+                            <option value="all">All Lift Levels</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Load Rating & Engineering -->
+                <div class="space-y-3 pt-3 border-t border-slate-800">
+                    <h3 class="font-semibold text-slate-200 flex items-center gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-amber-400"></i> Structural Duty Rating
+                    </h3>
+
+                    <div>
+                        <select id="dutyRating" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-amber-500 focus:outline-none">
+                            <option value="1.5">Light Duty (1.5 kN/m² - Inspection/Access)</option>
+                            <option value="2.0" selected>Medium Duty (2.0 kN/m² - Bricklaying/General)</option>
+                            <option value="3.0">Heavy Duty (3.0 kN/m² - Masonry/Heavy Store)</option>
+                        </select>
+                    </div>
+                </div>
+
             </div>
-
-            <hr class="border-slate-800">
-
-            <div class="space-y-3 flex-1 flex flex-col">
-                <h2 class="text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
-                    <span>📊</span> قائمة الكميات والأوزان
-                </h2>
-                <div class="bg-slate-950/60 border border-slate-800 rounded-lg p-3 text-xs space-y-2 overflow-y-auto max-h-52">
-                    <table class="w-full text-right">
-                        <thead>
-                            <tr class="text-slate-400 border-b border-slate-800 pb-1">
-                                <th class="pb-1">المكون</th>
-                                <th class="pb-1 text-center">العدد</th>
-                                <th class="pb-1 text-left">الوزن الإجمالي</th>
-                            </tr>
-                        </thead>
-                        <tbody id="bom-table-body" class="divide-y divide-slate-900">
-                        </tbody>
-                    </table>
-                </div>
-                <div class="bg-slate-800/80 p-3 rounded-lg border border-slate-700 flex justify-between items-center text-xs">
-                    <span class="text-slate-300 font-semibold">إجمالي وزن الهيكل:</span>
-                    <span id="total-weight" class="text-amber-400 font-bold text-sm">0 كجم</span>
-                </div>
-            </div>
-
-            <button id="btn-update" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 px-4 rounded-lg shadow transition duration-200">
-                تحديث النموذج الهندسي
-            </button>
         </aside>
 
-        <main class="flex-1 relative bg-slate-950">
-            <div id="webgl-container" class="w-full h-full"></div>
+        <!-- 3D Canvas Container -->
+        <main class="flex-1 relative bg-slate-950 overflow-hidden">
+            <!-- Canvas target -->
+            <div id="canvasContainer" class="w-full h-full"></div>
 
-            <div class="absolute top-4 left-4 bg-slate-900/80 backdrop-blur border border-slate-800 p-1.5 rounded-lg flex gap-2 shadow-lg">
-                <button onclick="setCameraView('iso')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded transition">أيزومتري</button>
-                <button onclick="setCameraView('front')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded transition">أمامي</button>
-                <button onclick="setCameraView('side')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded transition">جانبي</button>
-                <button onclick="setCameraView('top')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded transition">علوي</button>
+            <!-- Overlay Viewport Navigation Controls -->
+            <div class="absolute top-4 left-4 z-10 flex flex-wrap gap-1.5 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800 backdrop-blur">
+                <button id="viewIso" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded font-medium transition">Iso</button>
+                <button id="viewFront" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded font-medium transition">Front</button>
+                <button id="viewSide" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded font-medium transition">Side</button>
+                <button id="viewTop" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded font-medium transition">Top</button>
+                <div class="w-px h-4 bg-slate-700 self-center mx-1"></div>
+                <button id="toggleWireframe" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded font-medium transition flex items-center gap-1">
+                    <i data-lucide="square" class="w-3 h-3"></i> Wireframe
+                </button>
             </div>
 
-            <div class="absolute bottom-4 right-4 bg-slate-900/80 backdrop-blur border border-slate-800 px-3 py-2 rounded-lg text-xs text-slate-400 pointer-events-none">
-                💡 اسحب بالماوس للتدوير | استخدم عجلة الماوس للتقريب | انقر مع اليمين للتحريك
+            <!-- Color Legend -->
+            <div class="absolute bottom-4 left-4 z-10 hidden sm:flex items-center gap-3 bg-slate-900/80 px-3 py-2 rounded-xl border border-slate-800 text-[11px] backdrop-blur">
+                <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-sky-600 inline-block"></span> Standard</div>
+                <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> Ledger</div>
+                <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> Transom</div>
+                <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-slate-400 inline-block"></span> Deck</div>
+                <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span> Guardrail</div>
             </div>
-        </main>
+
+            <!-- Live Metric Floating Card -->
+            <div class="absolute top-4 right-4 z-10 w-72 glass-panel rounded-xl p-4 border border-slate-800 shadow-2xl space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-700/50 pb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Structural Summary</span>
+                    <i data-lucide="activity" class="w-4 h-4 text-amber-400"></i>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="bg-slate-900/70 p-2 rounded-lg border border-slate-800">
+                        <span class="text-slate-400 block text-[10px]">Total Height</span>
+                        <span id="metricHeight" class="text-sm font-bold text-slate-100">6.30 m</span>
+                    </div>
+                    <div class="bg-slate-900/70 p-2 rounded-lg border border-slate-800">
+                        <span class="text-slate-400 block text-[10px]">Footprint Area</span>
+                        <span id="metricArea" class="text-sm font-bold text-slate-100">18.0 m²</span>
+                    </div>
+                    <div class="bg-slate-900/70 p-2 rounded-lg border border-slate-800">
+                        <span class="text-slate-400 block text-[10px]">Total Dead Weight</span>
+                        <span id="metricWeight" class="text-sm font-bold text-amber-400">1,240 kg</span>
+                    </div>
+                    <div class="bg-slate-900/70 p-2 rounded-lg border border-slate-800">
+                        <span class="text-slate-400 block text-[10px]">Max Leg Load</span>
+                        <span id="metricLegLoad" class="text-sm font-bold text-slate-100">12.4 kN</span>
+                    </div>
+                </div>
+
+                <!-- Load Safety Margin Progress Bar -->
+                <div class="pt-1">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-400">Leg Capacity Utilization</span>
+                        <span id="safetyPercent" class="font-bold text-emerald-400">42%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <div id="safetyBar" class="bg-emerald-500 h-full transition-all duration-300" style="width: 42%"></div>
+                    </div>
+                    <p id="safetyStatus" class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
+                        <i data-lucide="check-circle" class="w-3 h-3 text-emerald-400"></i> Within Safe Limit (Max 57kN/Standard)
+                    </p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Sidebar: Dynamic Bill of Materials (BOM) -->
+        <aside class="w-80 sm:w-80 glass-panel border-l border-slate-800 flex flex-col z-10 shrink-0 hidden lg:flex">
+            <div class="p-3 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <i data-lucide="file-text" class="w-4 h-4 text-amber-400"></i> Bill of Materials (BOM)
+                </span>
+                <span id="bomItemCount" class="bg-amber-500/20 text-amber-400 text-[10px] px-2 py-0.5 rounded-full font-bold">142 Parts</span>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-2">
+                <table class="w-full text-left text-xs text-slate-300">
+                    <thead class="bg-slate-900/80 text-slate-400 text-[10px] uppercase sticky top-0">
+                        <tr>
+                            <th class="p-2">Component</th>
+                            <th class="p-2 text-center">Qty</th>
+                            <th class="p-2 text-right">Weight</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bomTableBody" class="divide-y divide-slate-800/60">
+                        <!-- Dynamic BOM Content populated via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer Summary -->
+            <div class="p-3 border-t border-slate-800 bg-slate-900/70 text-xs space-y-1">
+                <div class="flex justify-between text-slate-400">
+                    <span>Total Elements:</span>
+                    <span id="totalComponentsCount" class="font-semibold text-slate-200">0</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                    <span>Est. Volume:</span>
+                    <span id="scaffoldVolume" class="font-semibold text-slate-200">0 m³</span>
+                </div>
+                <div class="flex justify-between text-amber-400 font-bold pt-1 border-t border-slate-800">
+                    <span>Total Assembly Weight:</span>
+                    <span id="bomTotalWeight">0 kg</span>
+                </div>
+            </div>
+        </aside>
     </div>
 
+    <!-- MODAL 1: Cuplock Joint Inspector -->
+    <div id="nodeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-11/12 max-w-3xl h-[520px] flex flex-col overflow-hidden shadow-2xl">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="cpu" class="w-5 h-5 text-amber-400"></i>
+                    <h3 class="font-bold text-slate-100 text-sm">Cuplock Node Joint Inspection (0.5m Spacing)</h3>
+                </div>
+                <button id="closeNodeModal" class="text-slate-400 hover:text-slate-100 p-1 rounded-lg hover:bg-slate-800">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+                <!-- Joint 3D Canvas -->
+                <div id="nodeCanvasContainer" class="flex-1 bg-slate-950 relative"></div>
+                
+                <!-- Joint Mechanics Description -->
+                <div class="w-full md:w-72 p-4 bg-slate-900/90 border-t md:border-t-0 md:border-l border-slate-800 text-xs space-y-3 overflow-y-auto">
+                    <h4 class="font-bold text-amber-400 uppercase text-[11px] tracking-wider">Joint Mechanism</h4>
+                    <p class="text-slate-300 leading-relaxed">
+                        The Cuplock node features a unique circular locking principle:
+                    </p>
+                    <ol class="list-decimal list-inside text-slate-400 space-y-2">
+                        <li><strong class="text-slate-200">Fixed Bottom Cup:</strong> Welded to the standard at 0.5m intervals.</li>
+                        <li><strong class="text-slate-200">Ledger Blades:</strong> Forged ends of up to 4 horizontal members slot into the bottom cup.</li>
+                        <li><strong class="text-slate-200">Top Sliding Cup:</strong> Dropped down and rotated by hammer strike to securely lock all four components into a rigid node.</li>
+                    </ol>
+                    <div class="bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-lg text-amber-300 text-[11px]">
+                        <strong>Engineering Advantage:</strong> Zero loose fittings or bolts; rigid joint resistance reduces sway bracing requirements.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Standards & Code Guide -->
+    <div id="guideModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-11/12 max-w-2xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="book-open" class="w-5 h-5 text-amber-400"></i>
+                    <h3 class="font-bold text-slate-100 text-sm">Cuplock System Engineering Reference</h3>
+                </div>
+                <button id="closeGuideModal" class="text-slate-400 hover:text-slate-100 p-1 rounded-lg hover:bg-slate-800">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto space-y-4 text-xs text-slate-300 leading-relaxed">
+                <div class="border-b border-slate-800 pb-3">
+                    <h4 class="font-bold text-slate-100 text-sm mb-1">Design Standards Compliance</h4>
+                    <p class="text-slate-400">Designed in accordance with EN 12810-1, BS 1139 Part 3, and ANSI A10.8 safety standards for system scaffolds.</p>
+                </div>
+
+                <div class="space-y-2">
+                    <h4 class="font-bold text-amber-400">1. Standard Tube Specifications</h4>
+                    <p class="text-slate-400">High-yield steel tube: Outer Diameter 48.3 mm x 3.2 mm wall thickness (Grade S355 / Grade Q345 galvanised steel).</p>
+                </div>
+
+                <div class="space-y-2">
+                    <h4 class="font-bold text-amber-400">2. Permissible Standard Leg Loads</h4>
+                    <ul class="list-disc list-inside text-slate-400 space-y-1">
+                        <li>Unbraced Lift Height 2.0m: <strong class="text-slate-200">57.0 kN</strong> allowable leg axial load.</li>
+                        <li>Unbraced Lift Height 1.5m: <strong class="text-slate-200">68.5 kN</strong> allowable leg axial load.</li>
+                        <li>Base Jack Maximum Adjustment: <strong class="text-slate-200">600 mm</strong> (Minimum 150mm insertion inside tube).</li>
+                    </ul>
+                </div>
+
+                <div class="space-y-2">
+                    <h4 class="font-bold text-amber-400">3. Working Platform Load Duties</h4>
+                    <ul class="list-disc list-inside text-slate-400 space-y-1">
+                        <li><strong>Light Duty (1.5 kN/m²):</strong> Inspection, painting, and light hand tools.</li>
+                        <li><strong>Medium Duty (2.0 kN/m²):</strong> General building work, plastering, lightweight brickwork.</li>
+                        <li><strong>Heavy Duty (3.0 kN/m²):</strong> Heavy masonry, stone dressing, or material storage on platform.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT APP LOGIC -->
     <script>
+        // --- DATA & STATE MANAGEMENT ---
+        const state = {
+            bayLength: 2.5,
+            bayWidth: 1.2,
+            liftHeight: 2.0,
+            jackExt: 0.3,
+            baysX: 3,
+            baysY: 2,
+            liftsZ: 3,
+            showDecks: true,
+            showRails: true,
+            showBracing: true,
+            showTies: true,
+            deckLevel: 'top',
+            dutyRating: 2.0, // kN/m2
+            wireframe: false
+        };
+
+        // Component Weights (kg) according to BS 1139 standard catalog
+        const componentWeights = {
+            baseJack: 4.8,
+            standard3m: 16.2,
+            standard2m: 11.0,
+            standard1m: 5.8,
+            ledger25: 9.5,
+            ledger18: 6.9,
+            ledger12: 4.8,
+            ledger09: 3.8,
+            transom12: 5.2,
+            transom09: 4.1,
+            steelDeck25: 18.5,
+            steelDeck18: 14.0,
+            steelDeck12: 9.8,
+            braceFace: 11.2,
+            toeBoard25: 6.2,
+            wallTie: 3.5
+        };
+
+        // --- THREE.JS ENGINE SETUP ---
         let scene, camera, renderer, controls;
-        let scaffoldingGroup = new THREE.Group();
+        let scaffoldGroup;
+        let nodeScene, nodeCamera, nodeRenderer, nodeControls;
 
-        function init() {
-            const container = document.getElementById('webgl-container');
-
+        function init3D() {
+            const container = document.getElementById('canvasContainer');
+            
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x090d16);
-            scene.fog = new THREE.FogExp2(0x090d16, 0.015);
+            scene.background = new THREE.Color(0x0f172a); // Tailwind slate-950
 
+            // Camera Setup
             camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-            camera.position.set(15, 12, 15);
+            camera.position.set(12, 10, 16);
 
+            // Renderer
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             container.appendChild(renderer.domElement);
 
+            // Orbit Controls
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
-            controls.target.set(0, 4, 0);
+            controls.maxPolarAngle = Math.PI / 2 + 0.05; // Slightly below horizon
 
+            // Lighting Setup
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
             scene.add(ambientLight);
 
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
             dirLight.position.set(20, 40, 20);
             dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
             scene.add(dirLight);
 
-            const gridHelper = new THREE.GridHelper(40, 40, 0x334155, 0x1e293b);
-            gridHelper.position.y = -0.01;
+            const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 0.3);
+            dirLight2.position.set(-20, 20, -20);
+            scene.add(dirLight2);
+
+            // Ground Grid
+            const gridHelper = new THREE.GridHelper(50, 50, 0x334155, 0x1e293b);
+            gridHelper.position.y = 0;
             scene.add(gridHelper);
 
-            scene.add(scaffoldingGroup);
+            // Container Group for Scaffolding
+            scaffoldGroup = new THREE.Group();
+            scene.add(scaffoldGroup);
 
-            buildScaffolding();
-
+            // Window Resize Listener
             window.addEventListener('resize', onWindowResize);
 
-            document.getElementById('btn-update').addEventListener('click', buildScaffolding);
-            ['bayLength', 'bayWidth', 'liftHeight'].forEach(id => {
-                document.getElementById(id).addEventListener('input', (e) => {
-                    document.getElementById('val-' + (id === 'bayLength' ? 'length' : id === 'bayWidth' ? 'width' : 'height')).innerText = e.target.value + ' م';
-                });
-            });
-            ['toggle-decks', 'toggle-braces', 'toggle-rails', 'toggle-ties'].forEach(id => {
-                document.getElementById(id).addEventListener('change', buildScaffolding);
-            });
-            ['gridX', 'gridY', 'gridZ'].forEach(id => {
-                document.getElementById(id).addEventListener('input', buildScaffolding);
-            });
-
+            // Render Loop
             animate();
-        }
-
-        function onWindowResize() {
-            const container = document.getElementById('webgl-container');
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
-        }
-
-        function buildScaffolding() {
-            while (scaffoldingGroup.children.length > 0) {
-                scaffoldingGroup.remove(scaffoldingGroup.children[0]);
-            }
-
-            const nx = parseInt(document.getElementById('gridX').value);
-            const ny = parseInt(document.getElementById('gridY').value);
-            const nz = parseInt(document.getElementById('gridZ').value);
-            const lX = parseFloat(document.getElementById('bayLength').value);
-            const lY = parseFloat(document.getElementById('bayWidth').value);
-            const hZ = parseFloat(document.getElementById('liftHeight').value);
-
-            const showDecks = document.getElementById('toggle-decks').checked;
-            const showBraces = document.getElementById('toggle-braces').checked;
-            const showRails = document.getElementById('toggle-rails').checked;
-            const showTies = document.getElementById('toggle-ties').checked;
-
-            const standardMat = new THREE.MeshStandardMaterial({ color: 0x2563eb, metalness: 0.8, roughness: 0.2 });
-            const ledgerMat = new THREE.MeshStandardMaterial({ color: 0xeab308, metalness: 0.7, roughness: 0.3 });
-            const deckMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.5, roughness: 0.4 });
-            const jackMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.9, roughness: 0.1 });
-            const braceMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.6 });
-
-            let totalStandards = (nx + 1) * (ny + 1);
-            let standardCount = totalStandards * (nz + 1);
-            let ledgerCount = 0;
-            let transomCount = 0;
-            let deckCount = 0;
-            let braceCount = 0;
-
-            const startX = -(nx * lX) / 2;
-            const startY = -(ny * lY) / 2;
-
-            for (let i = 0; i <= nx; i++) {
-                for (let j = 0; j <= ny; j++) {
-                    const xPos = startX + i * lX;
-                    const zPos = startY + j * lY;
-
-                    const jackGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.4, 16);
-                    const jack = new THREE.Mesh(jackGeo, jackMat);
-                    jack.position.set(xPos, 0.2, zPos);
-                    scaffoldingGroup.add(jack);
-
-                    const totalH = (nz + 1) * hZ;
-                    const stdGeo = new THREE.CylinderGeometry(0.024, 0.024, totalH, 16);
-                    const std = new THREE.Mesh(stdGeo, standardMat);
-                    std.position.set(xPos, totalH / 2 + 0.4, zPos);
-                    scaffoldingGroup.add(std);
-
-                    for (let k = 0; k <= nz; k++) {
-                        const cupGeo = new THREE.CylinderGeometry(0.035, 0.035, 0.08, 16);
-                        const cup = new THREE.Mesh(cupGeo, jackMat);
-                        cup.position.set(xPos, 0.4 + k * hZ, zPos);
-                        scaffoldingGroup.add(cup);
-                    }
-                }
-            }
-
-            for (let k = 0; k <= nz; k++) {
-                const height = 0.4 + k * hZ;
-
-                for (let j = 0; j <= ny; j++) {
-                    for (let i = 0; i < nx; i++) {
-                        const xPos = startX + i * lX + lX / 2;
-                        const zPos = startY + j * lY;
-                        const ledGeo = new THREE.CylinderGeometry(0.02, 0.02, lX, 12);
-                        const led = new THREE.Mesh(ledGeo, ledgerMat);
-                        led.rotation.z = Math.PI / 2;
-                        led.position.set(xPos, height, zPos);
-                        scaffoldingGroup.add(led);
-                        ledgerCount++;
-                    }
-                }
-
-                for (let i = 0; i <= nx; i++) {
-                    for (let j = 0; j < ny; j++) {
-                        const xPos = startX + i * lX;
-                        const zPos = startY + j * lY + lY / 2;
-                        const transGeo = new THREE.CylinderGeometry(0.02, 0.02, lY, 12);
-                        const trans = new THREE.Mesh(transGeo, ledgerMat);
-                        trans.rotation.x = Math.PI / 2;
-                        trans.position.set(xPos, height, zPos);
-                        scaffoldingGroup.add(trans);
-                        transomCount++;
-                    }
-                }
-
-                if (showDecks && k > 0) {
-                    for (let i = 0; i < nx; i++) {
-                        for (let j = 0; j < ny; j++) {
-                            const xPos = startX + i * lX + lX / 2;
-                            const zPos = startY + j * lY + lY / 2;
-                            const deckGeo = new THREE.BoxGeometry(lX * 0.95, 0.05, lY * 0.95);
-                            const deck = new THREE.Mesh(deckGeo, deckMat);
-                            deck.position.set(xPos, height, zPos);
-                            scaffoldingGroup.add(deck);
-                            deckCount++;
-                        }
-                    }
-                }
-
-                if (showRails && k === nz) {
-                    const railHeight1 = height + 0.5;
-                    const railHeight2 = height + 1.0;
-                    [railHeight1, railHeight2].forEach(rh => {
-                        for (let j = 0; j <= ny; j++) {
-                            for (let i = 0; i < nx; i++) {
-                                const xPos = startX + i * lX + lX / 2;
-                                const zPos = startY + j * lY;
-                                const railGeo = new THREE.CylinderGeometry(0.015, 0.015, lX, 10);
-                                const rail = new THREE.Mesh(railGeo, ledgerMat);
-                                rail.rotation.z = Math.PI / 2;
-                                rail.position.set(xPos, rh, zPos);
-                                scaffoldingGroup.add(rail);
-                            }
-                        }
-                        for (let i = 0; i <= nx; i++) {
-                            for (let j = 0; j < ny; j++) {
-                                const xPos = startX + i * lX;
-                                const zPos = startY + j * lY + lY / 2;
-                                const railGeo = new THREE.CylinderGeometry(0.015, 0.015, lY, 10);
-                                const rail = new THREE.Mesh(railGeo, ledgerMat);
-                                rail.rotation.x = Math.PI / 2;
-                                rail.position.set(xPos, rh, zPos);
-                                scaffoldingGroup.add(rail);
-                            }
-                        }
-                    });
-                }
-            }
-
-            if (showBraces) {
-                for (let i = 0; i < nx; i++) {
-                    const xPos = startX + i * lX + lX / 2;
-                    const totalH = (nz + 1) * hZ;
-                    const diagLength = Math.sqrt(Math.pow(lX, 2) + Math.pow(totalH, 2));
-                    const diagGeo = new THREE.CylinderGeometry(0.018, 0.018, diagLength, 10);
-                    const diag = new THREE.Mesh(diagGeo, braceMat);
-                    diag.position.set(xPos, totalH / 2 + 0.4, startY);
-                    diag.rotation.z = Math.atan2(lX, totalH);
-                    scaffoldingGroup.add(diag);
-                    braceCount++;
-                }
-                for (let j = 0; j < ny; j++) {
-                    const zPos = startY + j * lY + lY / 2;
-                    const totalH = (nz + 1) * hZ;
-                    const diagLength = Math.sqrt(Math.pow(lY, 2) + Math.pow(totalH, 2));
-                    const diagGeo = new THREE.CylinderGeometry(0.018, 0.018, diagLength, 10);
-                    const diag = new THREE.Mesh(diagGeo, braceMat);
-                    diag.position.set(startX, totalH / 2 + 0.4, zPos);
-                    diag.rotation.x = Math.atan2(lY, totalH);
-                    scaffoldingGroup.add(diag);
-                    braceCount++;
-                }
-            }
-
-            if (showTies) {
-                const tieMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.8 });
-                for (let k = 1; k <= nz; k++) {
-                    const height = 0.4 + k * hZ;
-                    for (let i = 0; i <= nx; i++) {
-                        const xPos = startX + i * lX;
-                        const tieGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.6, 8);
-                        const tie = new THREE.Mesh(tieGeo, tieMat);
-                        tie.rotation.x = Math.PI / 2;
-                        tie.position.set(xPos, height, startY - 0.3);
-                        scaffoldingGroup.add(tie);
-                    }
-                }
-            }
-
-            updateBOM(standardCount, ledgerCount, transomCount, deckCount, braceCount);
-        }
-
-        function updateBOM(std, led, trans, deck, brace) {
-            const tbody = document.getElementById('bom-table-body');
-            tbody.innerHTML = '';
-
-            const items = [
-                { name: 'أعمدة رأسية (Standards)', count: std, unitWeight: 12.5 },
-                { name: 'عوارض أفقية (Ledgers)', count: led, unitWeight: 6.2 },
-                { name: 'عوارض مستعرضة (Transoms)', count: trans, unitWeight: 5.1 },
-                { name: 'ألواح فولاذية (Steel Decks)', count: deck, unitWeight: 14.0 },
-                { name: 'دعامات مائلة (Braces)', count: brace, unitWeight: 8.5 }
-            ];
-
-            let totalW = 0;
-            items.forEach(item => {
-                const itemTotalWeight = item.count * item.unitWeight;
-                totalW += itemTotalWeight;
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-900/50">
-                        <td class="py-1.5">${item.name}</td>
-                        <td class="py-1.5 text-center font-medium">${item.count}</td>
-                        <td class="py-1.5 text-left text-amber-400">${itemTotalWeight.toLocaleString()} كجم</td>
-                    </tr>
-                `;
-            });
-
-            document.getElementById('total-weight').innerText = totalW.toLocaleString() + ' كجم';
-        }
-
-        function setCameraView(view) {
-            controls.target.set(0, 4, 0);
-            switch (view) {
-                case 'iso': camera.position.set(15, 12, 15); break;
-                case 'front': camera.position.set(0, 5, 20); break;
-                case 'side': camera.position.set(20, 5, 0); break;
-                case 'top': camera.position.set(0, 25, 0.1); break;
-            }
-            controls.update();
         }
 
         function animate() {
@@ -510,102 +502,635 @@
             renderer.render(scene, camera);
         }
 
-        window.onload = init;
-    </script>
+        function onWindowResize() {
+            const container = document.getElementById('canvasContainer');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
 
-    <script>
-        const SW_CODE = `
-            const CACHE_NAME = 'cuplock-pwa-v1';
-            const CORE_ASSETS = ['./', './index.html'];
+        // --- MATERIALS DEFINITION ---
+        const materials = {
+            standard: new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.6, roughness: 0.3 }), // Sky blue galvanised
+            ledger: new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.5, roughness: 0.4 }),   // Amber yellow
+            transom: new THREE.MeshStandardMaterial({ color: 0x10b981, metalness: 0.5, roughness: 0.4 }),  // Emerald green
+            brace: new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.2 }),    // Metallic silver
+            deck: new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.7, roughness: 0.4 }),     // Steel deck grey
+            jack: new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.1 }),     // Bright chrome/zinc
+            guardrail: new THREE.MeshStandardMaterial({ color: 0xef4444, metalness: 0.5, roughness: 0.3 }),// Red guardrail
+            toeBoard: new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.2, roughness: 0.8 }), // Timber yellow
+            cup: new THREE.MeshStandardMaterial({ color: 0x0369a1, metalness: 0.7, roughness: 0.3 }),      // Darker standard blue
+            wallTie: new THREE.MeshStandardMaterial({ color: 0xec4899, metalness: 0.5, roughness: 0.4 })   // Pink/Magenta tie
+        };
 
-            self.addEventListener('install', (event) => {
-                self.skipWaiting();
-                event.waitUntil(
-                    caches.open(CACHE_NAME).then((cache) => {
-                        return cache.addAll(CORE_ASSETS).catch(() => {});
-                    })
-                );
-            });
+        // Apply wireframe option
+        function updateMaterialsWireframe() {
+            Object.values(materials).forEach(m => m.wireframe = state.wireframe);
+        }
 
-            self.addEventListener('activate', (event) => {
-                event.waitUntil(
-                    caches.keys().then((keys) => {
-                        return Promise.all(
-                            keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-                        );
-                    }).then(() => self.clients.claim())
-                );
-            });
+        // --- SCAFFOLDING GENERATION LOGIC ---
+        function buildScaffolding() {
+            // Clear existing geometry
+            while(scaffoldGroup.children.length > 0) { 
+                const obj = scaffoldGroup.children[0];
+                scaffoldGroup.remove(obj); 
+            }
 
-            self.addEventListener('fetch', (event) => {
-                if (event.request.method !== 'GET') return;
-                event.respondWith(
-                    caches.match(event.request).then((cached) => {
-                        if (cached) return cached;
-                        return fetch(event.request).then((response) => {
-                            if (response && response.status === 200) {
-                                const clone = response.clone();
-                                caches.open(CACHE_NAME).then((cache) => {
-                                    cache.put(event.request, clone).catch(() => {});
-                                });
+            const { bayLength: L, bayWidth: W, liftHeight: H, jackExt: J, baysX: NX, baysY: NY, liftsZ: NZ } = state;
+            const tubeRadius = 0.024; // 48.3mm OD
+            const totalHeight = J + (NZ * H);
+
+            // 1. STANDARDS & BASE JACKS
+            for (let i = 0; i <= NX; i++) {
+                for (let j = 0; j <= NY; j++) {
+                    const x = i * L;
+                    const z = j * W;
+
+                    // Base Plate & Adjustable Jack Thread
+                    const jackGroup = new THREE.Group();
+                    
+                    // Base Plate
+                    const plateGeo = new THREE.BoxGeometry(0.15, 0.01, 0.15);
+                    const plateMesh = new THREE.Mesh(plateGeo, materials.jack);
+                    plateMesh.position.y = 0.005;
+                    jackGroup.add(plateMesh);
+
+                    // Thread Bar
+                    const threadGeo = new THREE.CylinderGeometry(0.018, 0.018, J, 12);
+                    const threadMesh = new THREE.Mesh(threadGeo, materials.jack);
+                    threadMesh.position.y = J / 2;
+                    jackGroup.add(threadMesh);
+
+                    // Nut collar
+                    const nutGeo = new THREE.CylinderGeometry(0.035, 0.035, 0.03, 8);
+                    const nutMesh = new THREE.Mesh(nutGeo, materials.jack);
+                    nutMesh.position.y = J;
+                    jackGroup.add(nutMesh);
+
+                    jackGroup.position.set(x, 0, z);
+                    scaffoldGroup.add(jackGroup);
+
+                    // Standard Vertical Tubes
+                    const standardGeo = new THREE.CylinderGeometry(tubeRadius, tubeRadius, NZ * H, 16);
+                    const standardMesh = new THREE.Mesh(standardGeo, materials.standard);
+                    standardMesh.position.set(x, J + (NZ * H) / 2, z);
+                    standardMesh.castShadow = true;
+                    scaffoldGroup.add(standardMesh);
+
+                    // Signature Cuplock Joints at every 0.5m interval along standard
+                    const numCups = Math.floor((NZ * H) / 0.5);
+                    for (let c = 1; c <= numCups; c++) {
+                        const cupY = J + (c * 0.5);
+                        
+                        // Bottom Fixed Cup
+                        const botCupGeo = new THREE.CylinderGeometry(0.038, 0.032, 0.025, 16);
+                        const botCupMesh = new THREE.Mesh(botCupGeo, materials.cup);
+                        botCupMesh.position.set(x, cupY, z);
+                        scaffoldGroup.add(botCupMesh);
+
+                        // Top Sliding Cup
+                        const topCupGeo = new THREE.CylinderGeometry(0.040, 0.040, 0.025, 16);
+                        const topCupMesh = new THREE.Mesh(topCupGeo, materials.cup);
+                        topCupMesh.position.set(x, cupY + 0.03, z);
+                        scaffoldGroup.add(topCupMesh);
+                    }
+                }
+            }
+
+            // 2. LEDGERS (Horizontal Longitudinal Members - X Axis)
+            for (let k = 1; k <= NZ; k++) {
+                const y = J + (k * H);
+
+                for (let j = 0; j <= NY; j++) {
+                    const z = j * W;
+                    for (let i = 0; i < NX; i++) {
+                        const xStart = i * L;
+                        const xEnd = (i + 1) * L;
+
+                        const ledgerGeo = new THREE.CylinderGeometry(tubeRadius, tubeRadius, L - 0.08, 12);
+                        const ledgerMesh = new THREE.Mesh(ledgerGeo, materials.ledger);
+                        ledgerMesh.rotation.z = Math.PI / 2;
+                        ledgerMesh.position.set((xStart + xEnd) / 2, y, z);
+                        ledgerMesh.castShadow = true;
+                        scaffoldGroup.add(ledgerMesh);
+                    }
+                }
+            }
+
+            // 3. TRANSOMS (Horizontal Transverse Members - Y Axis)
+            for (let k = 1; k <= NZ; k++) {
+                const y = J + (k * H);
+
+                for (let i = 0; i <= NX; i++) {
+                    const x = i * L;
+                    for (let j = 0; j < NY; j++) {
+                        const zStart = j * W;
+                        const zEnd = (j + 1) * W;
+
+                        const transomGeo = new THREE.CylinderGeometry(tubeRadius, tubeRadius, W - 0.08, 12);
+                        const transomMesh = new THREE.Mesh(transomGeo, materials.transom);
+                        transomMesh.rotation.x = Math.PI / 2;
+                        transomMesh.position.set(x, y, (zStart + zEnd) / 2);
+                        transomMesh.castShadow = true;
+                        scaffoldGroup.add(transomMesh);
+                    }
+                }
+            }
+
+            // 4. STEEL DECKS & TOEBOARDS (Working Platforms)
+            if (state.showDecks) {
+                const deckLevels = state.deckLevel === 'all' 
+                    ? Array.from({length: NZ}, (_, idx) => idx + 1)
+                    : [NZ]; // Top level default
+
+                deckLevels.forEach(k => {
+                    const y = J + (k * H) + 0.02; // Elevated slightly over transoms
+
+                    for (let i = 0; i < NX; i++) {
+                        for (let j = 0; j < NY; j++) {
+                            const xCenter = (i + 0.5) * L;
+                            const zCenter = (j + 0.5) * W;
+
+                            // Steel Planks Array across bay width
+                            const plankWidth = 0.3; // 300mm standard steel deck
+                            const numPlanks = Math.floor((W - 0.05) / plankWidth);
+
+                            for (let p = 0; p < numPlanks; p++) {
+                                const offsetZ = (j * W) + 0.15 + (p * plankWidth);
+                                const deckGeo = new THREE.BoxGeometry(L - 0.05, 0.04, plankWidth - 0.02);
+                                const deckMesh = new THREE.Mesh(deckGeo, materials.deck);
+                                deckMesh.position.set(xCenter, y, offsetZ);
+                                deckMesh.receiveShadow = true;
+                                scaffoldGroup.add(deckMesh);
                             }
-                            return response;
-                        }).catch(() => {
-                            return caches.match('./index.html');
+
+                            // Toe Boards along deck perimeter
+                            if (j === 0 || j === NY - 1 || i === 0 || i === NX - 1) {
+                                // Front/Back Toe Boards
+                                const tbFront = new THREE.Mesh(
+                                    new THREE.BoxGeometry(L, 0.15, 0.02),
+                                    materials.toeBoard
+                                );
+                                tbFront.position.set(xCenter, y + 0.075, (j * W) + 0.02);
+                                scaffoldGroup.add(tbFront);
+
+                                const tbBack = new THREE.Mesh(
+                                    new THREE.BoxGeometry(L, 0.15, 0.02),
+                                    materials.toeBoard
+                                );
+                                tbBack.position.set(xCenter, y + 0.075, ((j + 1) * W) - 0.02);
+                                scaffoldGroup.add(tbBack);
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 5. GUARDRAILS (Top Rail @ 1.0m, Mid Rail @ 0.5m above top working platform)
+            if (state.showRails) {
+                const railLevels = state.deckLevel === 'all' 
+                    ? Array.from({length: NZ}, (_, idx) => idx + 1)
+                    : [NZ];
+
+                railLevels.forEach(k => {
+                    const yBase = J + (k * H);
+                    const railHeights = [0.5, 1.0]; // Mid & Top Guardrails
+
+                    railHeights.forEach(rh => {
+                        const y = yBase + rh;
+
+                        // Outer Front & Back Guardrails
+                        [0, NY * W].forEach(z => {
+                            for (let i = 0; i < NX; i++) {
+                                const xCenter = (i + 0.5) * L;
+                                const railGeo = new THREE.CylinderGeometry(0.018, 0.018, L, 12);
+                                const railMesh = new THREE.Mesh(railGeo, materials.guardrail);
+                                railMesh.rotation.z = Math.PI / 2;
+                                railMesh.position.set(xCenter, y, z);
+                                scaffoldGroup.add(railMesh);
+                            }
                         });
-                    })
-                );
-            });
-        `;
 
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                const blob = new Blob([SW_CODE], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(swUrl, { scope: './' })
-                    .then(() => console.log('✅ Service Worker registered'))
-                    .catch(err => console.warn('⚠️ SW registration failed:', err));
+                        // Side End Guardrails
+                        [0, NX * L].forEach(x => {
+                            for (let j = 0; j < NY; j++) {
+                                const zCenter = (j + 0.5) * W;
+                                const railGeo = new THREE.CylinderGeometry(0.018, 0.018, W, 12);
+                                const railMesh = new THREE.Mesh(railGeo, materials.guardrail);
+                                railMesh.rotation.x = Math.PI / 2;
+                                railMesh.position.set(x, y, zCenter);
+                                scaffoldGroup.add(railMesh);
+                            }
+                        });
+                    });
+                });
+            }
+
+            // 6. DIAGONAL FACE BRACING
+            if (state.showBracing) {
+                // Diagonal bracing on front face
+                for (let k = 0; k < NZ; k++) {
+                    const yStart = J + (k * H);
+                    const yEnd = J + ((k + 1) * H);
+
+                    for (let i = 0; i < NX; i += 2) { // Alternate bays
+                        const xStart = i * L;
+                        const xEnd = (i + 1) * L;
+
+                        const braceLen = Math.sqrt(Math.pow(L, 2) + Math.pow(H, 2));
+                        const angle = Math.atan2(H, L);
+
+                        const braceGeo = new THREE.CylinderGeometry(0.018, 0.018, braceLen, 12);
+                        const braceMesh = new THREE.Mesh(braceGeo, materials.brace);
+                        
+                        braceMesh.rotation.z = -angle;
+                        braceMesh.position.set((xStart + xEnd) / 2, (yStart + yEnd) / 2, NY * W);
+                        scaffoldGroup.add(braceMesh);
+                    }
+                }
+            }
+
+            // 7. WALL TIES & ANCHORS
+            if (state.showTies) {
+                for (let k = 1; k <= NZ; k += 2) {
+                    const y = J + (k * H);
+                    for (let i = 0; i <= NX; i += 2) {
+                        const x = i * L;
+                        const tieGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.8, 12);
+                        const tieMesh = new THREE.Mesh(tieGeo, materials.wallTie);
+                        tieMesh.rotation.x = Math.PI / 2;
+                        tieMesh.position.set(x, y, -0.4);
+                        scaffoldGroup.add(tieMesh);
+                    }
+                }
+            }
+
+            // Center structure around scene origin
+            const xOffset = -(NX * L) / 2;
+            const zOffset = -(NY * W) / 2;
+            scaffoldGroup.position.set(xOffset, 0, zOffset);
+
+            // Update calculations & metrics
+            calculateBOMAndMetrics();
+        }
+
+        // --- BILL OF MATERIALS & STRUCTURAL CALCULATION ENGINE ---
+        function calculateBOMAndMetrics() {
+            const { bayLength: L, bayWidth: W, liftHeight: H, jackExt: J, baysX: NX, baysY: NY, liftsZ: NZ } = state;
+
+            const numStandardsPerNode = (NX + 1) * (NY + 1);
+            const numBaseJacks = numStandardsPerNode;
+            
+            // Standards Breakdown
+            const totalStandardHeight = NZ * H;
+            const std3mQty = Math.floor(totalStandardHeight / 3.0) * numStandardsPerNode;
+            const std2mQty = Math.floor((totalStandardHeight % 3.0) / 2.0) * numStandardsPerNode;
+            const std1mQty = Math.ceil((totalStandardHeight % 2.0) / 1.0) * numStandardsPerNode;
+
+            // Ledgers & Transoms
+            const numLedgerLevels = NZ;
+            const ledgersXCount = NX * (NY + 1) * numLedgerLevels;
+            const transomsYCount = NY * (NX + 1) * numLedgerLevels;
+
+            // Decks
+            const deckLevelsCount = state.showDecks ? (state.deckLevel === 'all' ? NZ : 1) : 0;
+            const numPlanksPerBay = Math.floor((W - 0.05) / 0.3);
+            const totalDecks = NX * NY * numPlanksPerBay * deckLevelsCount;
+
+            // Guardrails & Toe Boards
+            const guardrailsCount = state.showRails ? ((NX * 2) + (NY * 2)) * 2 * deckLevelsCount : 0;
+            const toeBoardsCount = state.showDecks ? (NX * 2 + NY * 2) * deckLevelsCount : 0;
+
+            // Braces & Ties
+            const bracesCount = state.showBracing ? Math.ceil(NX / 2) * NZ : 0;
+            const tiesCount = state.showTies ? Math.ceil((NX + 1) / 2) * Math.ceil(NZ / 2) : 0;
+
+            // Calculate Weights (kg)
+            let bom = [
+                { name: 'Adjustable Base Jacks', qty: numBaseJacks, unitWt: componentWeights.baseJack },
+                { name: `Standards 3.0m`, qty: std3mQty, unitWt: componentWeights.standard3m },
+                { name: `Standards 2.0m`, qty: std2mQty, unitWt: componentWeights.standard2m },
+                { name: `Ledgers (${L}m)`, qty: ledgersXCount, unitWt: L === 2.5 ? componentWeights.ledger25 : (L === 1.8 ? componentWeights.ledger18 : componentWeights.ledger12) },
+                { name: `Transoms (${W}m)`, qty: transomsYCount, unitWt: W === 1.2 ? componentWeights.transom12 : componentWeights.transom09 },
+                { name: `Steel Decks (${L}m x 0.3m)`, qty: totalDecks, unitWt: L === 2.5 ? componentWeights.steelDeck25 : componentWeights.steelDeck18 },
+                { name: `Toe Boards (${L}m)`, qty: toeBoardsCount, unitWt: componentWeights.toeBoard25 },
+                { name: `Guardrails (${L}m)`, qty: guardrailsCount, unitWt: componentWeights.ledger25 * 0.7 },
+                { name: `Diagonal Face Braces`, qty: bracesCount, unitWt: componentWeights.braceFace },
+                { name: `Wall Ties & Anchor Couplers`, qty: tiesCount, unitWt: componentWeights.wallTie }
+            ].filter(item => item.qty > 0);
+
+            // Populate BOM UI Table
+            const tbody = document.getElementById('bomTableBody');
+            tbody.innerHTML = '';
+            
+            let totalWeight = 0;
+            let totalItemCount = 0;
+
+            bom.forEach(item => {
+                const itemTotalWt = item.qty * item.unitWt;
+                totalWeight += itemTotalWt;
+                totalItemCount += item.qty;
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/50 transition';
+                tr.innerHTML = `
+                    <td class="p-2 font-medium text-slate-200">${item.name}</td>
+                    <td class="p-2 text-center text-amber-400 font-bold">${item.qty}</td>
+                    <td class="p-2 text-right font-mono">${itemTotalWt.toFixed(1)} kg</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Update UI Counters
+            document.getElementById('bomTotalWeight').innerText = `${Math.round(totalWeight)} kg`;
+            document.getElementById('bomItemCount').innerText = `${totalItemCount} Parts`;
+            document.getElementById('totalComponentsCount').innerText = totalItemCount;
+
+            // Dimensions & Metrics
+            const height = J + (NZ * H);
+            const area = (NX * L) * (NY * W);
+            const volume = area * height;
+
+            document.getElementById('metricHeight').innerText = `${height.toFixed(2)} m`;
+            document.getElementById('metricArea').innerText = `${area.toFixed(1)} m²`;
+            document.getElementById('metricWeight').innerText = `${Math.round(totalWeight)} kg`;
+            document.getElementById('scaffoldVolume').innerText = `${volume.toFixed(1)} m³`;
+
+            // Load Analysis Logic
+            const liveLoadCapacity = state.dutyRating * area; // kN total platform capacity
+            const deadLoadKn = (totalWeight * 9.81) / 1000; // kN
+            const totalScaffoldLoad = deadLoadKn + liveLoadCapacity;
+            
+            // Maximum Axial Leg Load Calculation
+            const maxLegLoad = (totalScaffoldLoad / numStandardsPerNode) * 1.25; // 1.25 distribution factor
+            document.getElementById('metricLegLoad').innerText = `${maxLegLoad.toFixed(1)} kN`;
+
+            // Standard Leg Capacity according to BS 1139 (57.0 kN allowable for 2.0m lift)
+            const maxAllowableLegLoad = H === 2.0 ? 57.0 : (H === 1.5 ? 68.5 : 75.0);
+            const safetyPercent = Math.min(Math.round((maxLegLoad / maxAllowableLegLoad) * 100), 100);
+
+            const safetyBar = document.getElementById('safetyBar');
+            const safetyPercentEl = document.getElementById('safetyPercent');
+            const safetyStatus = document.getElementById('safetyStatus');
+
+            safetyPercentEl.innerText = `${safetyPercent}%`;
+            safetyBar.style.width = `${safetyPercent}%`;
+
+            if (safetyPercent < 70) {
+                safetyBar.className = 'bg-emerald-500 h-full transition-all duration-300';
+                safetyPercentEl.className = 'font-bold text-emerald-400';
+                safetyStatus.innerHTML = `<i data-lucide="check-circle" class="w-3 h-3 text-emerald-400"></i> Structural Safety Margin Safe (< ${maxAllowableLegLoad}kN)`;
+            } else if (safetyPercent < 90) {
+                safetyBar.className = 'bg-amber-500 h-full transition-all duration-300';
+                safetyPercentEl.className = 'font-bold text-amber-400';
+                safetyStatus.innerHTML = `<i data-lucide="alert-triangle" class="w-3 h-3 text-amber-400"></i> Approaching Structural Load Limit`;
+            } else {
+                safetyBar.className = 'bg-red-500 h-full transition-all duration-300';
+                safetyPercentEl.className = 'font-bold text-red-400';
+                safetyStatus.innerHTML = `<i data-lucide="alert-octagon" class="w-3 h-3 text-red-400"></i> Overload Warning! Reduce Lifts or Duties`;
+            }
+
+            lucide.createIcons();
+        }
+
+        // --- EXPLODED NODE INSPECTOR MODAL 3D VIEWER ---
+        function initNodeInspector3D() {
+            const container = document.getElementById('nodeCanvasContainer');
+            if (nodeRenderer) return; // Already initialized
+
+            nodeScene = new THREE.Scene();
+            nodeScene.background = new THREE.Color(0x020617);
+
+            nodeCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.01, 10);
+            nodeCamera.position.set(0.4, 0.3, 0.5);
+
+            nodeRenderer = new THREE.WebGLRenderer({ antialias: true });
+            nodeRenderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(nodeRenderer.domElement);
+
+            nodeControls = new THREE.OrbitControls(nodeCamera, nodeRenderer.domElement);
+            nodeControls.enableDamping = true;
+
+            const light1 = new THREE.DirectionalLight(0xffffff, 1.0);
+            light1.position.set(2, 4, 2);
+            nodeScene.add(light1);
+
+            const light2 = new THREE.AmbientLight(0xffffff, 0.6);
+            nodeScene.add(light2);
+
+            // Construct Exploded Node Assembly
+            const nodeGroup = new THREE.Group();
+
+            // 1. Vertical Standard Tube
+            const stdGeo = new THREE.CylinderGeometry(0.024, 0.024, 0.5, 32);
+            const stdMesh = new THREE.Mesh(stdGeo, materials.standard);
+            nodeGroup.add(stdMesh);
+
+            // 2. Fixed Bottom Cup
+            const botCupGeo = new THREE.CylinderGeometry(0.038, 0.032, 0.03, 32);
+            const botCupMesh = new THREE.Mesh(botCupGeo, materials.cup);
+            botCupMesh.position.y = 0;
+            nodeGroup.add(botCupMesh);
+
+            // 3. Four Connecting Ledger Blades slotted into Cup
+            const bladeAngles = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
+            bladeAngles.forEach(angle => {
+                const ledgerBladeGroup = new THREE.Group();
+
+                // Horizontal Tube
+                const tubeGeo = new THREE.CylinderGeometry(0.022, 0.022, 0.18, 16);
+                const tubeMesh = new THREE.Mesh(tubeGeo, materials.ledger);
+                tubeMesh.rotation.z = Math.PI / 2;
+                tubeMesh.position.x = 0.12;
+                ledgerBladeGroup.add(tubeMesh);
+
+                // Forged Blade End
+                const bladeGeo = new THREE.BoxGeometry(0.03, 0.025, 0.01);
+                const bladeMesh = new THREE.Mesh(bladeGeo, materials.ledger);
+                bladeMesh.position.x = 0.032;
+                bladeMesh.position.y = -0.005;
+                ledgerBladeGroup.add(bladeMesh);
+
+                ledgerBladeGroup.rotation.y = angle;
+                nodeGroup.add(ledgerBladeGroup);
+            });
+
+            // 4. Sliding Top Cup (Exploded upwards)
+            const topCupGeo = new THREE.CylinderGeometry(0.040, 0.040, 0.03, 32);
+            const topCupMesh = new THREE.Mesh(topCupGeo, materials.cup);
+            topCupMesh.position.y = 0.09; // Positioned exploded upwards
+            nodeGroup.add(topCupMesh);
+
+            nodeScene.add(nodeGroup);
+
+            function animateNode() {
+                requestAnimationFrame(animateNode);
+                nodeGroup.rotation.y += 0.005; // Slow rotation preview
+                nodeControls.update();
+                nodeRenderer.render(nodeScene, nodeCamera);
+            }
+            animateNode();
+        }
+
+        // --- EVENT LISTENERS & UI INTERACTION ---
+        function setupEventListeners() {
+            // Form Controls
+            const inputs = ['bayLength', 'bayWidth', 'liftHeight', 'jackExt', 'deckLevelSelect', 'dutyRating'];
+            inputs.forEach(id => {
+                document.getElementById(id).addEventListener('change', (e) => {
+                    if (id === 'bayLength') state.bayLength = parseFloat(e.target.value);
+                    if (id === 'bayWidth') state.bayWidth = parseFloat(e.target.value);
+                    if (id === 'liftHeight') state.liftHeight = parseFloat(e.target.value);
+                    if (id === 'jackExt') state.jackExt = parseFloat(e.target.value);
+                    if (id === 'deckLevelSelect') state.deckLevel = e.target.value;
+                    if (id === 'dutyRating') state.dutyRating = parseFloat(e.target.value);
+                    buildScaffolding();
+                });
+            });
+
+            // Range Sliders
+            const sliders = [
+                { id: 'baysX', valId: 'baysXVal', key: 'baysX' },
+                { id: 'baysY', valId: 'baysYVal', key: 'baysY' },
+                { id: 'liftsZ', valId: 'liftsZVal', key: 'liftsZ' }
+            ];
+
+            sliders.forEach(s => {
+                const el = document.getElementById(s.id);
+                el.addEventListener('input', (e) => {
+                    const val = parseInt(e.target.value);
+                    state[s.key] = val;
+                    document.getElementById(s.valId).innerText = val;
+                    buildScaffolding();
+                });
+            });
+
+            // Checkboxes
+            const toggles = [
+                { id: 'toggleDecks', key: 'showDecks' },
+                { id: 'toggleRails', key: 'showRails' },
+                { id: 'toggleBracing', key: 'showBracing' },
+                { id: 'toggleTies', key: 'showTies' }
+            ];
+
+            toggles.forEach(t => {
+                document.getElementById(t.id).addEventListener('change', (e) => {
+                    state[t.key] = e.target.checked;
+                    buildScaffolding();
+                });
+            });
+
+            // Camera Presets
+            document.getElementById('viewIso').addEventListener('click', () => {
+                camera.position.set(12, 10, 16);
+                controls.target.set(0, (state.liftsZ * state.liftHeight) / 2, 0);
+            });
+
+            document.getElementById('viewFront').addEventListener('click', () => {
+                camera.position.set(0, (state.liftsZ * state.liftHeight) / 2, 22);
+                controls.target.set(0, (state.liftsZ * state.liftHeight) / 2, 0);
+            });
+
+            document.getElementById('viewSide').addEventListener('click', () => {
+                camera.position.set(22, (state.liftsZ * state.liftHeight) / 2, 0);
+                controls.target.set(0, (state.liftsZ * state.liftHeight) / 2, 0);
+            });
+
+            document.getElementById('viewTop').addEventListener('click', () => {
+                camera.position.set(0, 30, 0.01);
+                controls.target.set(0, 0, 0);
+            });
+
+            // Wireframe Toggle
+            document.getElementById('toggleWireframe').addEventListener('click', () => {
+                state.wireframe = !state.wireframe;
+                updateMaterialsWireframe();
+            });
+
+            // Modals Logic
+            const nodeModal = document.getElementById('nodeModal');
+            document.getElementById('nodeInspectBtn').addEventListener('click', () => {
+                nodeModal.classList.remove('hidden');
+                initNodeInspector3D();
+            });
+            document.getElementById('closeNodeModal').addEventListener('click', () => {
+                nodeModal.classList.add('hidden');
+            });
+
+            const guideModal = document.getElementById('guideModal');
+            document.getElementById('guideBtn').addEventListener('click', () => {
+                guideModal.classList.remove('hidden');
+            });
+            document.getElementById('closeGuideModal').addEventListener('click', () => {
+                guideModal.classList.add('hidden');
+            });
+
+            // Export BOM to CSV
+            document.getElementById('exportCsvBtn').addEventListener('click', exportBOMToCSV);
+
+            // Reset Parameters
+            document.getElementById('resetParamsBtn').addEventListener('click', () => {
+                state.bayLength = 2.5;
+                state.bayWidth = 1.2;
+                state.liftHeight = 2.0;
+                state.baysX = 3;
+                state.baysY = 2;
+                state.liftsZ = 3;
+                
+                document.getElementById('bayLength').value = "2.5";
+                document.getElementById('bayWidth').value = "1.2";
+                document.getElementById('liftHeight').value = "2.0";
+                document.getElementById('baysX').value = "3";
+                document.getElementById('baysXVal').innerText = "3";
+                document.getElementById('baysY').value = "2";
+                document.getElementById('baysYVal').innerText = "2";
+                document.getElementById('liftsZ').value = "3";
+                document.getElementById('liftsZVal').innerText = "3";
+
+                buildScaffolding();
             });
         }
 
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                const splash = document.getElementById('splash');
-                if (splash) splash.classList.add('hide');
-                setTimeout(() => splash && splash.remove(), 600);
-            }, 700);
-        });
+        // CSV Export Engine
+        function exportBOMToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Cuplock Scaffolding Bill of Materials Report\n";
+            csvContent += `Grid Configuration: ${state.baysX} Bays Long x ${state.baysY} Bays Wide x ${state.liftsZ} Lifts High\n`;
+            csvContent += `Bay Dimensions: ${state.bayLength}m (L) x ${state.bayWidth}m (W) x ${state.liftHeight}m (Lift)\n\n`;
+            csvContent += "Component Description,Quantity,Unit Weight (kg),Total Weight (kg)\n";
 
-        let deferredPrompt = null;
-        const installBtn = document.getElementById('install-btn');
+            const rows = document.querySelectorAll('#bomTableBody tr');
+            rows.forEach(row => {
+                const cols = row.querySelectorAll('td');
+                if(cols.length === 3) {
+                    const name = `"${cols[0].innerText}"`;
+                    const qty = cols[1].innerText;
+                    const totalWt = cols[2].innerText.replace(' kg', '');
+                    const unitWt = (parseFloat(totalWt) / parseInt(qty)).toFixed(2);
+                    csvContent += `${name},${qty},${unitWt},${totalWt}\n`;
+                }
+            });
 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBtn.classList.add('show');
-        });
+            const totalWtText = document.getElementById('bomTotalWeight').innerText.replace(' kg', '');
+            csvContent += `\nTOTAL ASSEMBLY WEIGHT,,${totalWtText} kg\n`;
 
-        installBtn.addEventListener('click', async () => {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') installBtn.classList.remove('show');
-            deferredPrompt = null;
-        });
-
-        window.addEventListener('appinstalled', () => {
-            installBtn.classList.remove('show');
-            deferredPrompt = null;
-        });
-
-        const offlineBadge = document.getElementById('offline-badge');
-        function updateOnlineStatus() {
-            if (navigator.onLine) offlineBadge.classList.remove('show');
-            else offlineBadge.classList.add('show');
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Cuplock_Scaffold_BOM_${state.baysX}x${state.baysY}x${state.liftsZ}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
-        window.addEventListener('online', updateOnlineStatus);
-        window.addEventListener('offline', updateOnlineStatus);
-        updateOnlineStatus();
+
+        // Initialization on Load
+        window.onload = function() {
+            lucide.createIcons();
+            init3D();
+            setupEventListeners();
+            buildScaffolding();
+        };
     </script>
 </body>
 </html>
+```
