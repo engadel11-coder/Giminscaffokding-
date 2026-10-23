@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>تصميم وفاحص سقالات الكابلوب (Cuplock Scaffolding Designer)</title>
+
+    <!-- ===== PWA Meta Tags ===== -->
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="محاكي هندسي ثلاثي الأبعاد لتصميم وفحص سقالات الكابلوب وحساب الكميات والأوزان">
+    <meta name="application-name" content="Cuplock Designer">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Cuplock">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Cuplock%20Scaffolding%20Designer%22%2C%22short_name%22%3A%22Cuplock%22%2C%22description%22%3A%22%D9%85%D8%AD%D8%A7%D9%83%D9%8A%20%D9%87%D9%86%D8%AF%D8%B3%D9%8A%20%D9%84%D8%AA%D8%B5%D9%85%D9%8A%D9%85%20%D8%B3%D9%82%D8%A7%D9%84%D8%A7%D8%AA%20%D8%A7%D9%84%D9%83%D8%A7%D8%A8%D9%84%D9%88%D8%A8%22%2C%22start_url%22%3A%22.%2F%22%2C%22scope%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22any%22%2C%22background_color%22%3A%22%23090d16%22%2C%22theme_color%22%3A%22%230f172a%22%2C%22lang%22%3A%22ar%22%2C%22dir%22%3A%22rtl%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Bcharset%3Dutf-8%2C%253Csvg%2520xmlns%253D%2522http%253A%2F%2Fwww.w3.org%2F2000%2Fsvg%2522%2520viewBox%253D%25220%25200%2520512%2520512%2522%253E%253Crect%2520width%253D%2522512%2522%2520height%253D%2522512%2522%2520rx%253D%2522100%2522%2520fill%253D%2522%25230f172a%2522%2F%253E%253Ctext%2520x%253D%2522256%2522%2520y%253D%2522320%2522%2520font-size%253D%2522220%2522%2520text-anchor%253D%2522middle%2522%2520fill%253D%2522%2523f59e0b%2522%253E%25F0%259F%258F%2597%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%230f172a'/%3E%3Ctext x='256' y='320' font-size='220' text-anchor='middle' fill='%23f59e0b'%3E%F0%9F%8F%97%3C/text%3E%3C/svg%3E">
+    <link rel="icon" href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%230f172a'/%3E%3Ctext x='256' y='320' font-size='220' text-anchor='middle' fill='%23f59e0b'%3E%F0%9F%8F%97%3C/text%3E%3C/svg%3E">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+        input[type=range] { -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-runnable-track { height: 4px; background: #334155; border-radius: 2px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: #f59e0b; border-radius: 50%; margin-top: -6px; cursor: pointer; }
+
+        #splash {
+            position: fixed; inset: 0; z-index: 9999;
+            background: #090d16;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 1rem;
+            transition: opacity 0.5s ease, visibility 0.5s;
+        }
+        #splash.hide { opacity: 0; visibility: hidden; }
+        #splash .spinner {
+            width: 50px; height: 50px;
+            border: 4px solid #1e293b;
+            border-top-color: #f59e0b;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #install-btn {
+            position: fixed; bottom: 1rem; left: 1rem; z-index: 1000;
+            display: none; align-items: center; gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: #f59e0b; color: #0f172a;
+            border-radius: 9999px; font-weight: 700;
+            box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.5);
+            cursor: pointer; border: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            animation: pulseGlow 2s infinite;
+        }
+        #install-btn:hover { transform: scale(1.05); box-shadow: 0 15px 30px -5px rgba(245, 158, 11, 0.7); }
+        #install-btn.show { display: flex; }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.5); }
+            50% { box-shadow: 0 10px 35px -5px rgba(245, 158, 11, 0.9); }
+        }
+
+        #offline-badge {
+            position: fixed; top: 0.5rem; left: 50%; transform: translateX(-50%);
+            z-index: 1001; display: none;
+            padding: 0.5rem 1rem; border-radius: 9999px;
+            background: #78350f; color: #fbbf24;
+            border: 1px solid #b45309;
+            font-size: 0.75rem; font-weight: 600;
+        }
+        #offline-badge.show { display: block; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 h-screen flex flex-col overflow-hidden">
+
+    <div id="splash">
+        <div class="text-5xl">🏗️</div>
+        <div class="spinner"></div>
+        <p class="text-amber-400 font-bold text-sm">جاري تحميل التطبيق...</p>
+    </div>
+
+    <div id="offline-badge">📴 أنت غير متصل — التطبيق يعمل محلياً</div>
+
+    <button id="install-btn">
+        <span>📲</span>
+        <span>تثبيت التطبيق</span>
+    </button>
+
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-3 flex justify-between items-center shadow-lg z-10">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">🏗️</span>
+            <div>
+                <h1 class="font-bold text-lg text-amber-400">نظام تصميم وفحص سقالات الكابلوب (Cuplock)</h1>
+                <p class="text-xs text-slate-400">محاكي هندسي ثلاثي الأبعاد وحاسبة الكميات والأحمال</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <span id="duty-badge" class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-900/60 text-emerald-400 border border-emerald-700/50">
+                تصنيف: متوسط التحمل (Medium Duty)
+            </span>
+        </div>
+    </header>
+
+    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+
+        <aside class="w-full lg:w-96 bg-slate-900/90 backdrop-blur border-l border-slate-800 p-5 overflow-y-auto flex flex-col gap-6 z-10">
+
+            <div class="space-y-3">
+                <h2 class="text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                    <span>📐</span> أبعاد هيكل السقالة
+                </h2>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">أعمدة X</label>
+                        <input type="number" id="gridX" value="3" min="1" max="6" class="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-center text-sm focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">أعمدة Y</label>
+                        <input type="number" id="gridY" value="2" min="1" max="6" class="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-center text-sm focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">الطوابق Z</label>
+                        <input type="number" id="gridZ" value="3" min="1" max="10" class="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-center text-sm focus:outline-none focus:border-amber-500">
+                    </div>
+                </div>
+
+                <div class="space-y-2 pt-2">
+                    <div>
+                        <div class="flex justify-between text-xs text-slate-400 mb-1">
+                            <span>طول الباية (Bay Length):</span>
+                            <span id="val-length" class="text-slate-200 font-medium">2.5 م</span>
+                        </div>
+                        <input type="range" id="bayLength" min="1.0" max="3.0" step="0.5" value="2.5" class="w-full accent-amber-500 cursor-pointer">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs text-slate-400 mb-1">
+                            <span>عرض الباية (Bay Width):</span>
+                            <span id="val-width" class="text-slate-200 font-medium">1.2 م</span>
+                        </div>
+                        <input type="range" id="bayWidth" min="0.8" max="2.0" step="0.2" value="1.2" class="w-full accent-amber-500 cursor-pointer">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs text-slate-400 mb-1">
+                            <span>ارتفاع الطابق (Lift Height):</span>
+                            <span id="val-height" class="text-slate-200 font-medium">2.0 م</span>
+                        </div>
+                        <input type="range" id="liftHeight" min="1.5" max="2.5" step="0.25" value="2.0" class="w-full accent-amber-500 cursor-pointer">
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-slate-800">
+
+            <div class="space-y-3">
+                <h2 class="text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                    <span>👁️</span> طبقات العرض
+                </h2>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <label class="flex items-center gap-2 bg-slate-800/60 p-2 rounded border border-slate-700/50 cursor-pointer">
+                        <input type="checkbox" id="toggle-decks" checked class="accent-amber-500"> الألواح الفولاذية
+                    </label>
+                    <label class="flex items-center gap-2 bg-slate-800/60 p-2 rounded border border-slate-700/50 cursor-pointer">
+                        <input type="checkbox" id="toggle-braces" checked class="accent-amber-500"> الدعامات المائلة
+                    </label>
+                    <label class="flex items-center gap-2 bg-slate-800/60 p-2 rounded border border-slate-700/50 cursor-pointer">
+                        <input type="checkbox" id="toggle-rails" checked class="accent-amber-500"> درابزين الأمان
+                    </label>
+                    <label class="flex items-center gap-2 bg-slate-800/60 p-2 rounded border border-slate-700/50 cursor-pointer">
+                        <input type="checkbox" id="toggle-ties" checked class="accent-amber-500"> ربطات الجدران
+                    </label>
+                </div>
+            </div>
+
+            <hr class="border-slate-800">
+
+            <div class="space-y-3 flex-1 flex flex-col">
+                <h2 class="text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                    <span>📊</span> قائمة الكميات والأوزان
+                </h2>
+                <div class="bg-slate-950/60 border border-slate-800 rounded-lg p-3 text-xs space-y-2 overflow-y-auto max-h-52">
+                    <table class="w-full text-right">
+                        <thead>
+                            <tr class="text-slate-400 border-b border-slate-800 pb-1">
+                                <th class="pb-1">المكون</th>
+                                <th class="pb-1 text-center">العدد</th>
+                                <th class="pb-1 text-left">الوزن الإجمالي</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bom-table-body" class="divide-y divide-slate-900">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="bg-slate-800/80 p-3 rounded-lg border border-slate-700 flex justify-between items-center text-xs">
+                    <span class="text-slate-300 font-semibold">إجمالي وزن الهيكل:</span>
+                    <span id="total-weight" class="text-amber-400 font-bold text-sm">0 كجم</span>
+                </div>
+            </div>
+
+            <button id="btn-update" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 px-4 rounded-lg shadow transition duration-200">
+                تحديث النموذج الهندسي
+            </button>
+        </aside>
+
+        <main class="flex-1 relative bg-slate-950">
+            <div id="webgl-container" class="w-full h-full"></div>
+
+            <div class="absolute top-4 left-4 bg-slate-900/80 backdrop-blur border border-slate-800 p-1.5 rounded-lg flex gap-2 shadow-lg">
+                <button onclick="setCameraView('iso')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded transition">أيزومتري</button>
+                <button onclick="setCameraView('front')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded transition">أمامي</button>
+                <button onclick="setCameraView('side')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded transition">جانبي</button>
+                <button onclick="setCameraView('top')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded transition">علوي</button>
+            </div>
+
+            <div class="absolute bottom-4 right-4 bg-slate-900/80 backdrop-blur border border-slate-800 px-3 py-2 rounded-lg text-xs text-slate-400 pointer-events-none">
+                💡 اسحب بالماوس للتدوير | استخدم عجلة الماوس للتقريب | انقر مع اليمين للتحريك
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let scene, camera, renderer, controls;
+        let scaffoldingGroup = new THREE.Group();
+
+        function init() {
+            const container = document.getElementById('webgl-container');
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x090d16);
+            scene.fog = new THREE.FogExp2(0x090d16, 0.015);
+
+            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(15, 12, 15);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.target.set(0, 4, 0);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(20, 40, 20);
+            dirLight.castShadow = true;
+            scene.add(dirLight);
+
+            const gridHelper = new THREE.GridHelper(40, 40, 0x334155, 0x1e293b);
+            gridHelper.position.y = -0.01;
+            scene.add(gridHelper);
+
+            scene.add(scaffoldingGroup);
+
+            buildScaffolding();
+
+            window.addEventListener('resize', onWindowResize);
+
+            document.getElementById('btn-update').addEventListener('click', buildScaffolding);
+            ['bayLength', 'bayWidth', 'liftHeight'].forEach(id => {
+                document.getElementById(id).addEventListener('input', (e) => {
+                    document.getElementById('val-' + (id === 'bayLength' ? 'length' : id === 'bayWidth' ? 'width' : 'height')).innerText = e.target.value + ' م';
+                });
+            });
+            ['toggle-decks', 'toggle-braces', 'toggle-rails', 'toggle-ties'].forEach(id => {
+                document.getElementById(id).addEventListener('change', buildScaffolding);
+            });
+            ['gridX', 'gridY', 'gridZ'].forEach(id => {
+                document.getElementById(id).addEventListener('input', buildScaffolding);
+            });
+
+            animate();
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('webgl-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        function buildScaffolding() {
+            while (scaffoldingGroup.children.length > 0) {
+                scaffoldingGroup.remove(scaffoldingGroup.children[0]);
+            }
+
+            const nx = parseInt(document.getElementById('gridX').value);
+            const ny = parseInt(document.getElementById('gridY').value);
+            const nz = parseInt(document.getElementById('gridZ').value);
+            const lX = parseFloat(document.getElementById('bayLength').value);
+            const lY = parseFloat(document.getElementById('bayWidth').value);
+            const hZ = parseFloat(document.getElementById('liftHeight').value);
+
+            const showDecks = document.getElementById('toggle-decks').checked;
+            const showBraces = document.getElementById('toggle-braces').checked;
+            const showRails = document.getElementById('toggle-rails').checked;
+            const showTies = document.getElementById('toggle-ties').checked;
+
+            const standardMat = new THREE.MeshStandardMaterial({ color: 0x2563eb, metalness: 0.8, roughness: 0.2 });
+            const ledgerMat = new THREE.MeshStandardMaterial({ color: 0xeab308, metalness: 0.7, roughness: 0.3 });
+            const deckMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.5, roughness: 0.4 });
+            const jackMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.9, roughness: 0.1 });
+            const braceMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.6 });
+
+            let totalStandards = (nx + 1) * (ny + 1);
+            let standardCount = totalStandards * (nz + 1);
+            let ledgerCount = 0;
+            let transomCount = 0;
+            let deckCount = 0;
+            let braceCount = 0;
+
+            const startX = -(nx * lX) / 2;
+            const startY = -(ny * lY) / 2;
+
+            for (let i = 0; i <= nx; i++) {
+                for (let j = 0; j <= ny; j++) {
+                    const xPos = startX + i * lX;
+                    const zPos = startY + j * lY;
+
+                    const jackGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.4, 16);
+                    const jack = new THREE.Mesh(jackGeo, jackMat);
+                    jack.position.set(xPos, 0.2, zPos);
+                    scaffoldingGroup.add(jack);
+
+                    const totalH = (nz + 1) * hZ;
+                    const stdGeo = new THREE.CylinderGeometry(0.024, 0.024, totalH, 16);
+                    const std = new THREE.Mesh(stdGeo, standardMat);
+                    std.position.set(xPos, totalH / 2 + 0.4, zPos);
+                    scaffoldingGroup.add(std);
+
+                    for (let k = 0; k <= nz; k++) {
+                        const cupGeo = new THREE.CylinderGeometry(0.035, 0.035, 0.08, 16);
+                        const cup = new THREE.Mesh(cupGeo, jackMat);
+                        cup.position.set(xPos, 0.4 + k * hZ, zPos);
+                        scaffoldingGroup.add(cup);
+                    }
+                }
+            }
+
+            for (let k = 0; k <= nz; k++) {
+                const height = 0.4 + k * hZ;
+
+                for (let j = 0; j <= ny; j++) {
+                    for (let i = 0; i < nx; i++) {
+                        const xPos = startX + i * lX + lX / 2;
+                        const zPos = startY + j * lY;
+                        const ledGeo = new THREE.CylinderGeometry(0.02, 0.02, lX, 12);
+                        const led = new THREE.Mesh(ledGeo, ledgerMat);
+                        led.rotation.z = Math.PI / 2;
+                        led.position.set(xPos, height, zPos);
+                        scaffoldingGroup.add(led);
+                        ledgerCount++;
+                    }
+                }
+
+                for (let i = 0; i <= nx; i++) {
+                    for (let j = 0; j < ny; j++) {
+                        const xPos = startX + i * lX;
+                        const zPos = startY + j * lY + lY / 2;
+                        const transGeo = new THREE.CylinderGeometry(0.02, 0.02, lY, 12);
+                        const trans = new THREE.Mesh(transGeo, ledgerMat);
+                        trans.rotation.x = Math.PI / 2;
+                        trans.position.set(xPos, height, zPos);
+                        scaffoldingGroup.add(trans);
+                        transomCount++;
+                    }
+                }
+
+                if (showDecks && k > 0) {
+                    for (let i = 0; i < nx; i++) {
+                        for (let j = 0; j < ny; j++) {
+                            const xPos = startX + i * lX + lX / 2;
+                            const zPos = startY + j * lY + lY / 2;
+                            const deckGeo = new THREE.BoxGeometry(lX * 0.95, 0.05, lY * 0.95);
+                            const deck = new THREE.Mesh(deckGeo, deckMat);
+                            deck.position.set(xPos, height, zPos);
+                            scaffoldingGroup.add(deck);
+                            deckCount++;
+                        }
+                    }
+                }
+
+                if (showRails && k === nz) {
+                    const railHeight1 = height + 0.5;
+                    const railHeight2 = height + 1.0;
+                    [railHeight1, railHeight2].forEach(rh => {
+                        for (let j = 0; j <= ny; j++) {
+                            for (let i = 0; i < nx; i++) {
+                                const xPos = startX + i * lX + lX / 2;
+                                const zPos = startY + j * lY;
+                                const railGeo = new THREE.CylinderGeometry(0.015, 0.015, lX, 10);
+                                const rail = new THREE.Mesh(railGeo, ledgerMat);
+                                rail.rotation.z = Math.PI / 2;
+                                rail.position.set(xPos, rh, zPos);
+                                scaffoldingGroup.add(rail);
+                            }
+                        }
+                        for (let i = 0; i <= nx; i++) {
+                            for (let j = 0; j < ny; j++) {
+                                const xPos = startX + i * lX;
+                                const zPos = startY + j * lY + lY / 2;
+                                const railGeo = new THREE.CylinderGeometry(0.015, 0.015, lY, 10);
+                                const rail = new THREE.Mesh(railGeo, ledgerMat);
+                                rail.rotation.x = Math.PI / 2;
+                                rail.position.set(xPos, rh, zPos);
+                                scaffoldingGroup.add(rail);
+                            }
+                        }
+                    });
+                }
+            }
+
+            if (showBraces) {
+                for (let i = 0; i < nx; i++) {
+                    const xPos = startX + i * lX + lX / 2;
+                    const totalH = (nz + 1) * hZ;
+                    const diagLength = Math.sqrt(Math.pow(lX, 2) + Math.pow(totalH, 2));
+                    const diagGeo = new THREE.CylinderGeometry(0.018, 0.018, diagLength, 10);
+                    const diag = new THREE.Mesh(diagGeo, braceMat);
+                    diag.position.set(xPos, totalH / 2 + 0.4, startY);
+                    diag.rotation.z = Math.atan2(lX, totalH);
+                    scaffoldingGroup.add(diag);
+                    braceCount++;
+                }
+                for (let j = 0; j < ny; j++) {
+                    const zPos = startY + j * lY + lY / 2;
+                    const totalH = (nz + 1) * hZ;
+                    const diagLength = Math.sqrt(Math.pow(lY, 2) + Math.pow(totalH, 2));
+                    const diagGeo = new THREE.CylinderGeometry(0.018, 0.018, diagLength, 10);
+                    const diag = new THREE.Mesh(diagGeo, braceMat);
+                    diag.position.set(startX, totalH / 2 + 0.4, zPos);
+                    diag.rotation.x = Math.atan2(lY, totalH);
+                    scaffoldingGroup.add(diag);
+                    braceCount++;
+                }
+            }
+
+            if (showTies) {
+                const tieMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.8 });
+                for (let k = 1; k <= nz; k++) {
+                    const height = 0.4 + k * hZ;
+                    for (let i = 0; i <= nx; i++) {
+                        const xPos = startX + i * lX;
+                        const tieGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.6, 8);
+                        const tie = new THREE.Mesh(tieGeo, tieMat);
+                        tie.rotation.x = Math.PI / 2;
+                        tie.position.set(xPos, height, startY - 0.3);
+                        scaffoldingGroup.add(tie);
+                    }
+                }
+            }
+
+            updateBOM(standardCount, ledgerCount, transomCount, deckCount, braceCount);
+        }
+
+        function updateBOM(std, led, trans, deck, brace) {
+            const tbody = document.getElementById('bom-table-body');
+            tbody.innerHTML = '';
+
+            const items = [
+                { name: 'أعمدة رأسية (Standards)', count: std, unitWeight: 12.5 },
+                { name: 'عوارض أفقية (Ledgers)', count: led, unitWeight: 6.2 },
+                { name: 'عوارض مستعرضة (Transoms)', count: trans, unitWeight: 5.1 },
+                { name: 'ألواح فولاذية (Steel Decks)', count: deck, unitWeight: 14.0 },
+                { name: 'دعامات مائلة (Braces)', count: brace, unitWeight: 8.5 }
+            ];
+
+            let totalW = 0;
+            items.forEach(item => {
+                const itemTotalWeight = item.count * item.unitWeight;
+                totalW += itemTotalWeight;
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-900/50">
+                        <td class="py-1.5">${item.name}</td>
+                        <td class="py-1.5 text-center font-medium">${item.count}</td>
+                        <td class="py-1.5 text-left text-amber-400">${itemTotalWeight.toLocaleString()} كجم</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('total-weight').innerText = totalW.toLocaleString() + ' كجم';
+        }
+
+        function setCameraView(view) {
+            controls.target.set(0, 4, 0);
+            switch (view) {
+                case 'iso': camera.position.set(15, 12, 15); break;
+                case 'front': camera.position.set(0, 5, 20); break;
+                case 'side': camera.position.set(20, 5, 0); break;
+                case 'top': camera.position.set(0, 25, 0.1); break;
+            }
+            controls.update();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        window.onload = init;
+    </script>
+
+    <script>
+        const SW_CODE = `
+            const CACHE_NAME = 'cuplock-pwa-v1';
+            const CORE_ASSETS = ['./', './index.html'];
+
+            self.addEventListener('install', (event) => {
+                self.skipWaiting();
+                event.waitUntil(
+                    caches.open(CACHE_NAME).then((cache) => {
+                        return cache.addAll(CORE_ASSETS).catch(() => {});
+                    })
+                );
+            });
+
+            self.addEventListener('activate', (event) => {
+                event.waitUntil(
+                    caches.keys().then((keys) => {
+                        return Promise.all(
+                            keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+                        );
+                    }).then(() => self.clients.claim())
+                );
+            });
+
+            self.addEventListener('fetch', (event) => {
+                if (event.request.method !== 'GET') return;
+                event.respondWith(
+                    caches.match(event.request).then((cached) => {
+                        if (cached) return cached;
+                        return fetch(event.request).then((response) => {
+                            if (response && response.status === 200) {
+                                const clone = response.clone();
+                                caches.open(CACHE_NAME).then((cache) => {
+                                    cache.put(event.request, clone).catch(() => {});
+                                });
+                            }
+                            return response;
+                        }).catch(() => {
+                            return caches.match('./index.html');
+                        });
+                    })
+                );
+            });
+        `;
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const blob = new Blob([SW_CODE], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl, { scope: './' })
+                    .then(() => console.log('✅ Service Worker registered'))
+                    .catch(err => console.warn('⚠️ SW registration failed:', err));
+            });
+        }
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splash');
+                if (splash) splash.classList.add('hide');
+                setTimeout(() => splash && splash.remove(), 600);
+            }, 700);
+        });
+
+        let deferredPrompt = null;
+        const installBtn = document.getElementById('install-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.classList.add('show');
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') installBtn.classList.remove('show');
+            deferredPrompt = null;
+        });
+
+        window.addEventListener('appinstalled', () => {
+            installBtn.classList.remove('show');
+            deferredPrompt = null;
+        });
+
+        const offlineBadge = document.getElementById('offline-badge');
+        function updateOnlineStatus() {
+            if (navigator.onLine) offlineBadge.classList.remove('show');
+            else offlineBadge.classList.add('show');
+        }
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
+    </script>
+</body>
+</html>
